@@ -1,0 +1,6 @@
+[submodule "gnu-efi"]
+	path = gnu-efi
+	url = https://github.com/rhboot/gnu-efi
+[submodule "res/bdf2c"]
+	path = res/bdf2c
+	url = https://github.com/pixelmatix/bdf2c

@@ -1,0 +1,14 @@
+#include <efi.h>
+
+void UEFIGOPSetMode(
+    IN EFI_GRAPHICS_OUTPUT_PROTOCOL * gop,
+    IN UINT32 mode
+);
+
+void UEFIGOPQueryCurrentMode(IN EFI_GRAPHICS_OUTPUT_PROTOCOL * gop);
+
+void UEFIGOPQueryMode(
+    IN  EFI_GRAPHICS_OUTPUT_PROTOCOL * gop,
+    IN  UINT32 mode,
+    OUT EFI_GRAPHICS_OUTPUT_MODE_INFORMATION ** info
+);
