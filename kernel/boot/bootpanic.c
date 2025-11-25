@@ -1,6 +1,6 @@
 #include <efi.h>
 #include <efilib.h>
-#include <uefi/ueficonsole.h>
+#include <boot/uefi/ueficonsole.h>
 
 const static long UNSET_PANIC_DATA = 0xDEADBEEFCAFE1337;
 
@@ -9,10 +9,10 @@ unsigned long g_panicData2 = UNSET_PANIC_DATA;
 unsigned long g_panicData3 = UNSET_PANIC_DATA;
 unsigned long g_panicData4 = UNSET_PANIC_DATA;
 
-void PanicSetData1(unsigned long data) { g_panicData1 = data; }
-void PanicSetData2(unsigned long data) { g_panicData2 = data; }
-void PanicSetData3(unsigned long data) { g_panicData3 = data; }
-void PanicSetData4(unsigned long data) { g_panicData4 = data; }
+void BootPanicSetData1(unsigned long data) { g_panicData1 = data; }
+void BootPanicSetData2(unsigned long data) { g_panicData2 = data; }
+void BootPanicSetData3(unsigned long data) { g_panicData3 = data; }
+void BootPanicSetData4(unsigned long data) { g_panicData4 = data; }
 
 void PrintPanicData(unsigned long data)
 {
@@ -25,7 +25,7 @@ void PrintPanicData(unsigned long data)
     Print(L"%lx (%ld)\n", data, data);
 }
 
-void Panic(wchar_t * message)
+void BootPanic(wchar_t * message)
 {   
     UEFIConsoleSetColors(EFI_WHITE | EFI_BACKGROUND_RED);
     UEFIConsoleClear();
@@ -45,7 +45,7 @@ void Panic(wchar_t * message)
     Print(L"| $$      | $$  | $$| $$ \\  $$ /$$$$$$|  $$$$$$/ /$$\n");
     Print(L"|__/      |__/  |__/|__/  \\__/|______/ \\______/ |__/\n");
     Print(L"\n");
-    Print(L"Panic! at the Kernel\n");
+    Print(L"Bootloader Panic\n");
     Print(L"--------------------\n");
     Print(L"\n");
     Print(L"Unfortunately for you, the panic train has arrived at the station.\n");

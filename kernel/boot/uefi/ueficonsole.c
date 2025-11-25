@@ -1,5 +1,5 @@
 #include <efi.h>
-#include <uefi/uefi.h>
+#include <boot/uefi/uefi.h>
 
 void UEFIConsoleClear()
 {

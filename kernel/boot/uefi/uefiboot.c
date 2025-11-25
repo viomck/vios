@@ -1,6 +1,6 @@
 #include <efi.h>
-#include <panic.h>
-#include <uefi/uefi.h>
+#include <boot/bootpanic.h>
+#include <boot/uefi/uefi.h>
 
 void UEFIBootGetMemoryMap(
     IN EFI_STATUS expectedStatus,

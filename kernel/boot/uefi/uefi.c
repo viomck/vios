@@ -1,5 +1,5 @@
 #include <efi.h>
-#include <panic.h>
+#include <boot/bootpanic.h>
 
 EFI_SYSTEM_TABLE * g_systemTable = NULL;
 
@@ -16,9 +16,9 @@ void UEFIAssertStatus(
 {
     if (actual != expected)
     {
-        PanicSetData1(actual);
-        PanicSetData2(expected);
-        Panic(caller);
+        BootPanicSetData1(actual);
+        BootPanicSetData2(expected);
+        BootPanic(caller);
     }
 }
 
@@ -26,7 +26,7 @@ EFI_SYSTEM_TABLE * UEFIGetSystemTable()
 {
     if (g_systemTable == NULL)
     {
-        Panic(L"g_systemTable accessed before initialization");
+        BootPanic(L"g_systemTable accessed before initialization");
     }
     return g_systemTable;
 }

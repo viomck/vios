@@ -52,15 +52,16 @@ build() {
     linker_files="$linker_files $ofile"
 }
 
+build boot/uefi/uefi
+build boot/uefi/uefiboot
+build boot/uefi/ueficonsole
+build boot/uefi/uefigop
+build boot/boot
+build boot/bootpanic
 build gen/font
-build uefi/uefi
-build uefi/uefiboot
-build uefi/ueficonsole
-build uefi/uefigop
 build font
 build gfx
 build main
-build panic
 
 if has_flag "buildonly"; then
     cleanup
