@@ -67,6 +67,10 @@ void GfxPlotPixel(int x, int y, uint32_t pixel)
     // TODO: panic if frameBufferStart or pixelsPerScanLine are not set but we
     // can't panic until we actually have graphics lol
     *((uint32_t*)(g_frameBufferStart + 4 * g_pixelsPerScanLine * y + 4 * x)) = pixel;
+
+    #ifdef FLAG_SLOWGFX
+    for (int i = 0; i < 10000; i++) { __asm__("nop"); }
+    #endif
 }
 
 void GfxPlot(int x, int y, uint8_t r, uint8_t g, uint8_t b)

@@ -31,6 +31,7 @@ define_build_flag() {
 define_build_flag memmap
 define_build_flag bootpanic
 define_build_flag kernelpanic
+define_build_flag slowgfx
 
 linker_files=""
 
