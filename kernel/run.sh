@@ -1,13 +1,10 @@
 #!/bin/bash
 set -e
 
-# directory to run qemu out of
-# ovmf/* and uefi.img will be copied here and cleaned after
-# yes i run qemu through windows, i can't get it to work in WSL
-QEMU_RUNDIR=/mnt/c/Users/Violet/Documents/uefios
-QEMU='/mnt/c/Program Files/qemu/qemu-system-x86_64.exe'
-
-cd ~/uefios/kernel
+: "${QEMU:=qemu-system-x86_64}"
+: "${QEMU_RUNDIR:=/tmp/viosqemuworkingdir}"
+echo "QEMU: $QEMU"
+echo "QEMU Working Directory: $QEMU_RUNDIR"
 
 ARGS="$@"
 
@@ -134,7 +131,7 @@ echo "copying part.img into uefi.img..." ; dd if=part.img of=uefi.img bs=512 cou
 # --------------------------- RUN THE IMAGE IN QEMU ---------------------------
 KERNELDIR="$PWD"
 
-mkdir "$QEMU_RUNDIR/ovmf"
+mkdir -p "$QEMU_RUNDIR/ovmf"
 cp ../ovmf/* "$QEMU_RUNDIR/ovmf"
 cp uefi.img "$QEMU_RUNDIR"
 cd $QEMU_RUNDIR
