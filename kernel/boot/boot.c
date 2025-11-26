@@ -8,8 +8,6 @@
 #include <boot/bootpanic.h>
 #include <gfx.h>
 
-bool g_hasExitedBoot = false;
-
 #define MemType(t, print) case (t): Print(print); break;
 
 const static UINT32 DESIRED_WIDTH = 1280;
@@ -151,6 +149,7 @@ void SetDesiredGraphicsMode(EFI_GRAPHICS_OUTPUT_PROTOCOL * gop)
         )
         {
             UEFIGOPSetMode(gop, i);
+            GfxSetScreenWidthAndHeight(info->HorizontalResolution, info->VerticalResolution);
             return;
         }
     }
@@ -186,9 +185,4 @@ void Boot(EFI_SYSTEM_TABLE * systemTable, EFI_HANDLE imageHandle)
 
     Print(L"Exiting bootloader to kernel...\n");
     ExitBootMode(imageHandle);
-}
-
-bool BootHasExited()
-{
-    return g_hasExitedBoot;
 }

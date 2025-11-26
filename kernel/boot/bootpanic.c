@@ -4,15 +4,15 @@
 
 const static long UNSET_PANIC_DATA = 0xDEADBEEFCAFE1337;
 
-unsigned long g_panicData1 = UNSET_PANIC_DATA;
-unsigned long g_panicData2 = UNSET_PANIC_DATA;
-unsigned long g_panicData3 = UNSET_PANIC_DATA;
-unsigned long g_panicData4 = UNSET_PANIC_DATA;
+unsigned long g_bootPanicData1 = UNSET_PANIC_DATA;
+unsigned long g_bootPanicData2 = UNSET_PANIC_DATA;
+unsigned long g_bootPanicData3 = UNSET_PANIC_DATA;
+unsigned long g_bootPanicData4 = UNSET_PANIC_DATA;
 
-void BootPanicSetData1(unsigned long data) { g_panicData1 = data; }
-void BootPanicSetData2(unsigned long data) { g_panicData2 = data; }
-void BootPanicSetData3(unsigned long data) { g_panicData3 = data; }
-void BootPanicSetData4(unsigned long data) { g_panicData4 = data; }
+void BootPanicSetData1(unsigned long data) { g_bootPanicData1 = data; }
+void BootPanicSetData2(unsigned long data) { g_bootPanicData2 = data; }
+void BootPanicSetData3(unsigned long data) { g_bootPanicData3 = data; }
+void BootPanicSetData4(unsigned long data) { g_bootPanicData4 = data; }
 
 void PrintPanicData(unsigned long data)
 {
@@ -54,10 +54,10 @@ void BootPanic(wchar_t * message)
     Print(L"\n");
     Print(L"Reason: %s\n", message);
     Print(L"\n");
-    Print(L"Data 1: "); PrintPanicData(g_panicData1);
-    Print(L"Data 2: "); PrintPanicData(g_panicData2);
-    Print(L"Data 3: "); PrintPanicData(g_panicData3);
-    Print(L"Data 4: "); PrintPanicData(g_panicData4);
+    Print(L"Data 1: "); PrintPanicData(g_bootPanicData1);
+    Print(L"Data 2: "); PrintPanicData(g_bootPanicData2);
+    Print(L"Data 3: "); PrintPanicData(g_bootPanicData3);
+    Print(L"Data 4: "); PrintPanicData(g_bootPanicData4);
     Print(L"\n");
     Print(L"Did you know you get a free subscription with Amazon Prime?\n");
     Print(L"twitch.tv/viboof\n");

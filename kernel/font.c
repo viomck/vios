@@ -1,9 +1,20 @@
+#include <stdbool.h>
 #include <stdint.h>
 #include <gfx.h>
 #include <gen/font.h>
+#include <panic.h>
 
 void FontRenderGlyph(uint8_t glyph, int scale, int xOffset, int yOffset)
 {
+    if (scale < 0)
+    {
+        PanicSetData1(scale);
+        PanicSetData2(glyph);
+        PanicSetData3(xOffset);
+        PanicSetData4(yOffset);
+        Panic("FontRenderGlyph: Provided scale value (D1) is negative. D2=glyph,D3=xOffset,D4=yOffset");
+    }
+
     int gx = 0;
     int gy = 0;
     int sx = 0;
@@ -38,19 +49,39 @@ void FontRenderGlyph(uint8_t glyph, int scale, int xOffset, int yOffset)
     }
 }
 
-void FontRenderChar(unsigned char c, int scale, int xOffset, int yOffset)
+void FontRenderChar(char c, int scale, int xOffset, int yOffset)
 {
+    if (c < ' ')
+    {
+        PanicSetData1(c);
+        Panic("FontRenderChar: Provided character (D1) is invalid.");
+    }
     FontRenderGlyph(c - ' ', scale, xOffset, yOffset);
 }
 
-void FontRenderStr(const unsigned char * string, int scale, int xOffset, int yOffset)
+void _FontRenderStr(const char * string, int scale, int xOffset, int yOffset, bool wrap)
 {
+    int xoff = xOffset;
+    int yoff = yOffset;
+
+    int width = GfxGetScreenWidth();
     char c = string[0];
     for (int i = 1; c != '\0'; i++)
     {
-        FontRenderChar(c, scale, xOffset + (i * 8 * scale), yOffset);
+        FontRenderChar(c, scale, xoff, yoff);
+        xoff += 8 * scale;
+        if (wrap && xoff >= width - (8 * scale) - xOffset)
+        {
+            xoff = xOffset;
+            yoff += scale * 16;
+        }
         c = string[i];
     }
+}
+
+void FontRenderStr(const char * string, int scale, int xOffset, int yOffset)
+{
+    _FontRenderStr(string, scale, xOffset, yOffset, true);
 }
 
 void FontRenderTestGlyphs()

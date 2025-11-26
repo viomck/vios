@@ -10,15 +10,11 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE imageHandle, EFI_SYSTEM_TABLE * systemTabl
     InitializeLib(imageHandle, systemTable);
     Boot(systemTable, imageHandle);
 
-    for (int x = 0; x < 1280; x++)
-    {
-        for (int y = 0; y < 800; y++)
-        {
-            GfxPlot(x, y, 255, 0, 0);
-        }
-    }
+    FontRenderStr("hi :D", 4, 0, 0);
 
-    FontRenderTestGlyphs();
+    #ifdef FLAG_KERNELPANIC
+    GfxSetScreenWidthAndHeight(0x1, 0x2);
+    #endif
 
     for (;;) {}
     return EFI_SUCCESS;

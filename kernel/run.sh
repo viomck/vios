@@ -30,6 +30,7 @@ define_build_flag() {
 
 define_build_flag memmap
 define_build_flag bootpanic
+define_build_flag kernelpanic
 
 linker_files=""
 
@@ -62,14 +63,15 @@ build gen/font
 build font
 build gfx
 build main
+build panic
+
+echo "linking $linker_files..." ; ld $LDFLAGS $linker_files -o main.so -lgnuefi -lefi
+echo "extracting EFI executable..." ; objcopy $OBJCOPYFLAGS main.so main.efi
 
 if has_flag "buildonly"; then
     cleanup
     exit 0
 fi
-
-echo "linking $linker_files..." ; ld $LDFLAGS $linker_files -o main.so -lgnuefi -lefi
-echo "extracting EFI executable..." ; objcopy $OBJCOPYFLAGS main.so main.efi
 # -----------------------------------------------------------------------------
 
 # ------------------------- BUILD THE UEFI DISK IMAGE -------------------------
