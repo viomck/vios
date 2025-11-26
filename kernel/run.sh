@@ -1,4 +1,11 @@
 #!/bin/bash
+set -e
+
+# directory to run qemu out of
+# ovmf/* and uefi.img will be copied here and cleaned after
+# yes i run qemu through windows, i can't get it to work in WSL
+QEMU_RUNDIR=/mnt/c/Users/Violet/Documents/uefios
+QEMU='/mnt/c/Program Files/qemu/qemu-system-x86_64.exe'
 
 cd ~/uefios/kernel
 
@@ -13,6 +20,50 @@ has_flag() {
 
     return 1  # 1 = false in bash
 }
+
+cleanup() {
+    rm -f part.img
+    rm -f uefi.img
+    rm -f main.efi
+    rm -f main.so
+    rm -rf EFI
+    rm -rf ../gnu-efi/x86_64
+    rm -rf ../res/bdf2c/bdf2c
+    rm -rf ../res/bdf2c/bdf2c.o
+    rm -rf gen/genfont.c
+    rm -rf gen/font.h
+    rm -rf "$QEMU_RUNDIR/ovmf"
+    rm -rf "$QEMU_RUNDIR/uefi.img"
+    find . -maxdepth 10 -name "*.o" -exec rm {} \;
+}
+
+cleanup
+
+# ------------------------------ BUILD VGA FONTS ------------------------------
+#
+echo "making bdf2c..."
+cd ../res/bdf2c
+# there are compiler warnings, but they don't stop bdf2c from functioning, so
+# we edit the Makefile lol
+cp Makefile Makefile.bak
+sed -i 's/-Werror -W -Wall//' Makefile
+make
+mv Makefile.bak Makefile
+
+echo "generating gen/font.h..."
+./bdf2c -C ../../kernel/gen/font.h
+echo "generating gen/genfont.c..."
+./bdf2c -b < ../u_vga16.bdf > ../../kernel/gen/genfont.c
+cd ../../kernel
+printf "\n\nunsigned char GenFontGetBitmap(int index) { return __font_bitmap__[index]; }" >> gen/genfont.c
+# -----------------------------------------------------------------------------
+
+# ------------------------------- BUILD GNU-EFI -------------------------------
+echo "making gnu-efi..."
+cd ../gnu-efi
+make
+cd ../kernel
+# -----------------------------------------------------------------------------
 
 # ------------------------- BUILD THE EFI APPLICATION -------------------------
 CCFLAGS="-I. -I../gnu-efi/inc -fpic -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args"
@@ -35,17 +86,6 @@ define_build_flag slowgfx
 
 linker_files=""
 
-cleanup() {
-    rm -f part.img
-    rm -f uefi.img
-    rm -f main.efi
-    rm -f main.so
-    rm -rf EFI
-    find . -maxdepth 10 -name "*.o" -exec rm {} \;
-}
-
-cleanup
-
 build() {
     path="$1"
     cfile="$path.c"
@@ -60,7 +100,7 @@ build boot/uefi/ueficonsole
 build boot/uefi/uefigop
 build boot/boot
 build boot/bootpanic
-build gen/font
+build gen/genfont
 build font
 build gfx
 build main
@@ -92,15 +132,18 @@ echo "copying part.img into uefi.img..." ; dd if=part.img of=uefi.img bs=512 cou
 # -----------------------------------------------------------------------------
 
 # --------------------------- RUN THE IMAGE IN QEMU ---------------------------
-cd /mnt/c/Users/Violet/Documents/uefios
-cp ~/uefios/ovmf/* ovmf
-cp ~/uefios/kernel/uefi.img uefi.img
-echo "running qemu..." ; /mnt/c/Program\ Files/qemu/qemu-system-x86_64.exe \
+KERNELDIR="$PWD"
+
+mkdir "$QEMU_RUNDIR/ovmf"
+cp ../ovmf/* "$QEMU_RUNDIR/ovmf"
+cp uefi.img "$QEMU_RUNDIR"
+cd $QEMU_RUNDIR
+echo "running qemu..." ; "$QEMU" \
 	-m 1024M \
 	-drive if=pflash,unit=0,format=raw,readonly=on,file=ovmf/codex86.fd \
 	-drive if=pflash,unit=1,format=raw,file=ovmf/varsx86.fd \
 	-drive file=uefi.img,format=raw,if=ide \
     -serial stdio
-cd ~/uefios/kernel
+cd $KERNELDIR
 
 cleanup

@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <gfx.h>
-#include <gen/font.h>
+#include <gen/genfont.h>
 #include <panic.h>
 
 void FontRenderGlyph(uint8_t glyph, int scale, int xOffset, int yOffset)
