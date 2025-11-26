@@ -10,5 +10,5 @@ making an operating system from scratch for fun
 1. cd kernel
 1. ./run.sh
     - override QEMU's path with the `QEMU` env var
-    - override QEMU's working directory (where the image gets stored
-      temporarily with the OVMF files)
+    - override QEMU's working directory with the `QEMU_RUNDIR` env var (where the image gets
+    stored temporarily with the OVMF files)
