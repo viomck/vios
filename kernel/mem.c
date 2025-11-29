@@ -29,7 +29,9 @@ bool testAllocChecksum(struct Allocation * alloc)
             }
         }
     }
-    return numOnes % 8;
+    FontRenderHex(numOnes, 2, 500, 500);
+    // for (uint64_t i = 0; i < 100000000; i++) { __asm__("nop"); }
+    return numOnes % 8 == 0;
 }
 
 void writeAllocChecksum(struct Allocation * alloc)
@@ -234,6 +236,8 @@ void _MemAlloc(uint64_t size, void ** out)
         *out = (void *) ((uint64_t) newAllocPtr + sizeof(struct Allocation));
     }
     else {
+        verifyAlloc(allocPtr);
+
         // real existing allocation
         getEndOfAlloc(allocPtr, out);
         *((struct Allocation *) *out) = (struct Allocation)
@@ -242,15 +246,18 @@ void _MemAlloc(uint64_t size, void ** out)
                 .last = allocPtr,
                 .next = allocPtr->next == NULL ? NULL : allocPtr->next,
             };
+
+        writeAllocChecksum((struct Allocation *) *out);
             
         if (allocPtr->next != NULL)
         {
+            verifyAlloc(allocPtr->next);
             allocPtr->next->last = (struct Allocation *) *out;
+            writeAllocChecksum(allocPtr->next);
         }
 
         allocPtr->next = (struct Allocation *) *out;
-
-        writeAllocChecksum((struct Allocation *) *out);
+        writeAllocChecksum(allocPtr);
 
         *out = (void *) ((uint64_t) *out + sizeof(struct Allocation));
     }
