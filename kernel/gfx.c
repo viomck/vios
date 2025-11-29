@@ -1,20 +1,25 @@
+#include <stddef.h>
 #include <stdint.h>
 #include <panic.h>
+#include <mem.h>
 
-uint64_t g_frameBufferStart; 
 uint32_t g_pixelsPerScanLine;
 uint16_t g_screenWidth;
 uint16_t g_screenHeight;
+uint64_t g_frameBufferStart; 
+uint64_t g_frameDoubleBufferStart;
 
 void GfxSetFrameBufferStart(uint64_t frameBufferStart)
 {
     if (g_frameBufferStart != 0)
     {
         PanicSetData1(frameBufferStart);
-        PanicSetData2(g_frameBufferStart);
+        PanicSetData2((unsigned long) g_frameBufferStart);
         Panic("GfxSetFrameBufferStart: g_frameBufferStart (D2) already set. D1=provided frameBufferStart.");
     }
     g_frameBufferStart = frameBufferStart;
+    // fake double buffer for now (until kernel takes over and calls GfxInit)
+    g_frameDoubleBufferStart = frameBufferStart;
 }
 
 void GfxSetPixelsPerScanLine(uint32_t pixelsPerScanLine)
@@ -64,9 +69,8 @@ void GfxPlotPixel(int x, int y, uint32_t pixel)
         Panic("GfxPlotPixel: x (D1) or y (D2) are negative. D3=pixel");
     }
 
-    // TODO: panic if frameBufferStart or pixelsPerScanLine are not set but we
-    // can't panic until we actually have graphics lol
     *((uint32_t*)(g_frameBufferStart + 4 * g_pixelsPerScanLine * y + 4 * x)) = pixel;
+    *((uint32_t*)(g_frameDoubleBufferStart + 4 * g_pixelsPerScanLine * y + 4 * x)) = pixel;
 
     #ifdef FLAG_SLOWGFX
     for (int i = 0; i < 10000; i++) { __asm__("nop"); }
@@ -103,4 +107,56 @@ void GfxFullScreenGradientToColor(uint8_t r, uint8_t g, uint8_t b)
             );
         }
     }
+}
+
+void GfxBlankScreen()
+{
+    for (int x = 0; x < GfxGetScreenWidth(); x++)
+    {
+        for (int y = 0; y < GfxGetScreenHeight(); y++)
+        {
+            GfxPlot(x, y, 0, 0, 0);
+        }
+    }
+}
+
+uint64_t frameBufferOffset(uint16_t x, uint16_t y)
+{
+    return 4 * g_pixelsPerScanLine * y + 4 * x;
+}
+
+uint32_t pixelAt(uint16_t x, uint16_t y)
+{
+    return *((uint32_t*)(g_frameDoubleBufferStart + frameBufferOffset(x, y)));
+}
+
+void GfxScrollUp(uint16_t px)
+{
+    for (uint16_t y = 0; y < GfxGetScreenHeight(); y++)
+    {
+        for (uint16_t x = 0; x < GfxGetScreenWidth(); x++)
+        {
+            if (y > GfxGetScreenHeight() - px)
+            {
+                GfxPlot(x, y, 0, 0, 0);
+            }
+            else
+            {
+                GfxPlotPixel(x, y, pixelAt(x, y + px));
+            }
+        }
+    }
+}
+
+void GfxInit()
+{
+    uint64_t fbs;
+
+    MemAlloc(
+        4 * g_pixelsPerScanLine * GfxGetScreenHeight() + 4 * GfxGetScreenWidth(),
+        &g_frameDoubleBufferStart
+    );
+
+    // so that the buffer and double buffer are in sync
+    GfxBlankScreen();
 }

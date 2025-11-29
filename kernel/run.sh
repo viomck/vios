@@ -100,9 +100,11 @@ build boot/bootpanic
 build gen/genfont
 build font
 build gfx
+build kmain
 build main
 build mem
 build panic
+build print
 build std
 
 echo "linking $linker_files..." ; ld $LDFLAGS $linker_files -o main.so -lgnuefi -lefi

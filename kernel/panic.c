@@ -77,6 +77,5 @@ void Panic(const char * reason)
     renderData(6, g_panicData6, true, false, true, xoff, yoff);
     renderData(7, g_panicData7, false, true, true, xoff, yoff);
     renderData(8, g_panicData8, false, false, true, xoff, yoff);
-
     for (;;) {}
 }

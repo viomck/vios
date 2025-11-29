@@ -19,6 +19,7 @@ struct Allocation
 bool testAllocChecksum(struct Allocation * alloc)
 {
     int numOnes = 0;
+
     for (uint8_t byt = 0; byt < sizeof(struct Allocation); byt++)
     {
         for (uint8_t bit = 0; bit < 8; bit++)
@@ -29,8 +30,7 @@ bool testAllocChecksum(struct Allocation * alloc)
             }
         }
     }
-    // FontRenderHex(numOnes, 2, 500, 500);
-    // for (uint64_t i = 0; i < 100000000; i++) { __asm__("nop"); }
+
     return numOnes % 8 == 0;
 }
 
@@ -40,9 +40,7 @@ void writeAllocChecksum(struct Allocation * alloc)
         alloc->checksum = 0; 
         alloc->checksum <= 255 && !testAllocChecksum(alloc);
         alloc->checksum++
-    ){
-        // FontRenderHex(alloc->checksum, 8, 0, 0);
-    }
+    );
 
     if (/*still*/ !testAllocChecksum(alloc))
     {
@@ -175,7 +173,11 @@ void maybeGetAllocPtr(uint64_t size, bool wantExistingAllocsOnDesc, struct Alloc
         // FontRenderHex(desc->Type, 2, 0, 100);
         // FontRenderHex(0xFFFFFFFFFFFFFFFF, 2, 0, 200);
         // FontRenderHex(0xFFFFFFFFFFFFFFFF, 2, 0, 300);
-        if (desc->Type == EfiConventionalMemory)
+
+        // HACK: for some reason, memory below 0x100000 seems to be unbearably
+        // slow.  try to find a BIG chunk of memory in hopes it will be 
+        // faster
+        if (desc->Type == EfiConventionalMemory && desc->NumberOfPages > 1000)
         {
             bool allocsOk = !wantExistingAllocsOnDesc || 
                 hasExistingAllocations(desc);
@@ -279,12 +281,16 @@ void _MemFree(void ** memory)
 
     if (alloc->last != NULL)
     {
+        verifyAlloc(alloc->last);
         alloc->last->next = alloc->next == NULL ? NULL : alloc->next;
+        writeAllocChecksum(alloc->last);
     }
 
     if (alloc->next != NULL)
     {
+        verifyAlloc(alloc->next);
         alloc->next->last = alloc->last == NULL ? NULL : alloc->next;
+        writeAllocChecksum(alloc->next);
     }
 
     // clear memory
