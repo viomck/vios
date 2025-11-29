@@ -29,7 +29,7 @@ bool testAllocChecksum(struct Allocation * alloc)
             }
         }
     }
-    FontRenderHex(numOnes, 2, 500, 500);
+    // FontRenderHex(numOnes, 2, 500, 500);
     // for (uint64_t i = 0; i < 100000000; i++) { __asm__("nop"); }
     return numOnes % 8 == 0;
 }
@@ -41,7 +41,7 @@ void writeAllocChecksum(struct Allocation * alloc)
         alloc->checksum <= 255 && !testAllocChecksum(alloc);
         alloc->checksum++
     ){
-        FontRenderHex(alloc->checksum, 8, 0, 0);
+        // FontRenderHex(alloc->checksum, 8, 0, 0);
     }
 
     if (/*still*/ !testAllocChecksum(alloc))
@@ -69,7 +69,7 @@ void verifyAlloc(struct Allocation * alloc)
 
 void getEndOfAlloc(struct Allocation * alloc, void ** out)
 {
-    FontRenderStr("getEndOfAlloc", 2, 0, 0);
+    // FontRenderStr("getEndOfAlloc", 2, 0, 0);
     verifyAlloc(alloc);
     *out = (void *) ((uint64_t) alloc + sizeof(struct Allocation) + alloc->size);
 }
@@ -128,7 +128,7 @@ void maybeGetAllocPtrForDesc(
     }
 
     *out = (struct Allocation *) (startOfDesc(descriptor) + 2);
-    FontRenderStr("maybeGetAllocPtrForDesc", 2, 0, 0);
+    // FontRenderStr("maybeGetAllocPtrForDesc", 2, 0, 0);
     void * endOfAlloc = NULL;
 
     for (; (*out)->next != NULL; *out = (*out)->next)
@@ -139,7 +139,7 @@ void maybeGetAllocPtrForDesc(
         getEndOfAlloc(*out, &endOfAlloc);
 
         uint64_t gap = (uint64_t) (*out)->next - (uint64_t) endOfAlloc;
-        FontRenderHex(gap, 2, 0, 500);
+        // FontRenderHex(gap, 2, 0, 500);
 
         if (gap >= sizeof(struct Allocation) + size)
         {
@@ -171,17 +171,17 @@ void maybeGetAllocPtr(uint64_t size, bool wantExistingAllocsOnDesc, struct Alloc
     for (int i = 0; i < g_mapSize / g_descriptorSize; i++)
     {
         // if(!wantExistingAllocsOnDesc) for (uint64_t _ = 0; _ < 1000000000; _++) { __asm__("nop"); }
-        FontRenderHex(i, 2, 0, 0);
-        FontRenderHex(desc->Type, 2, 0, 100);
-        FontRenderHex(0xFFFFFFFFFFFFFFFF, 2, 0, 200);
-        FontRenderHex(0xFFFFFFFFFFFFFFFF, 2, 0, 300);
+        // FontRenderHex(i, 2, 0, 0);
+        // FontRenderHex(desc->Type, 2, 0, 100);
+        // FontRenderHex(0xFFFFFFFFFFFFFFFF, 2, 0, 200);
+        // FontRenderHex(0xFFFFFFFFFFFFFFFF, 2, 0, 300);
         if (desc->Type == EfiConventionalMemory)
         {
             bool allocsOk = !wantExistingAllocsOnDesc || 
                 hasExistingAllocations(desc);
             
-            FontRenderHex(wantExistingAllocsOnDesc, 2, 0, 200);
-            FontRenderHex(hasExistingAllocations(desc), 2, 0, 300);
+            // FontRenderHex(wantExistingAllocsOnDesc, 2, 0, 200);
+            // FontRenderHex(hasExistingAllocations(desc), 2, 0, 300);
 
             if (allocsOk)
             {
@@ -274,7 +274,7 @@ void _MemFree(void ** memory)
 {
     struct Allocation * alloc = (struct Allocation *) 
         ((uint64_t) *memory - sizeof(struct Allocation));
-    FontRenderStr("free", 2, 0, 0);
+    // FontRenderStr("free", 2, 0, 0);
     verifyAlloc(alloc);
 
     if (alloc->last != NULL)
