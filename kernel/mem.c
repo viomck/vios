@@ -228,7 +228,6 @@ void _MemAlloc(uint64_t size, void ** out)
         *((uint16_t *) allocPtr) = MAGIC_ALLOCATED_HEADER;
         // move past header
         struct Allocation * newAllocPtr = (struct Allocation *) ((uint64_t) allocPtr + 2);
-        // this is fucking insane
         *newAllocPtr = (struct Allocation) 
             { .size = size, .last = NULL, .next = NULL, .checksum = 0 };
         writeAllocChecksum(newAllocPtr);
