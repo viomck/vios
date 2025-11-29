@@ -59,6 +59,17 @@ void FontRenderChar(char c, int scale, int xOffset, int yOffset)
     FontRenderGlyph(c - ' ', scale, xOffset, yOffset);
 }
 
+void FontRenderHex(uint64_t data, int scale, int xOffset, int yOffset)
+{
+    for (int i = 0; i < 16; i++)
+    {
+        char piece = ((char) (data >> 60 - (i * 4)) & 0xF);
+        char c = piece < 10 ? '0' + piece : 'A' + (piece - 10);
+        FontRenderChar(c, scale, xOffset, yOffset);
+        xOffset += 8 * scale;
+    }
+}
+
 void _FontRenderStr(const char * string, int scale, int xOffset, int yOffset, bool wrap)
 {
     int xoff = xOffset;
@@ -82,6 +93,11 @@ void _FontRenderStr(const char * string, int scale, int xOffset, int yOffset, bo
 void FontRenderStr(const char * string, int scale, int xOffset, int yOffset)
 {
     _FontRenderStr(string, scale, xOffset, yOffset, true);
+}
+
+void FontRenderStrUnwrapped(const char * string, int scale, int xOffset, int yOffset)
+{
+    _FontRenderStr(string, scale, xOffset, yOffset, false);
 }
 
 void FontRenderTestGlyphs()

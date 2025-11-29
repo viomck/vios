@@ -7,12 +7,13 @@
 #include <boot/uefi/uefigop.h>
 #include <boot/bootpanic.h>
 #include <gfx.h>
-
-#define MemType(t, print) case (t): Print(print); break;
+#include <mem.h>
 
 const static UINT32 DESIRED_WIDTH = 1280;
 const static UINT32 DESIRED_HEIGHT = 800;
 
+#ifdef FLAG_MEMMAP
+#define MemType(t, print) case (t): Print(print); break;
 void PrintMemoryType(UINT32 type) 
 {
     switch (type) {
@@ -48,7 +49,6 @@ void PrintMemoryDescriptor(EFI_MEMORY_DESCRIPTOR descriptor)
     Print(L"Attr: %d\n", descriptor.Attribute);
 }
 
-#ifdef FLAG_MEMMAP
 void PrintMemoryMap(
     IN EFI_MEMORY_DESCRIPTOR * memoryMap, 
     IN UINTN * memoryMapSize,
@@ -100,6 +100,8 @@ void ExitBootMode(EFI_HANDLE imageHandle)
     #ifdef FLAG_MEMMAP
     PrintMemoryMap(memoryMap, &memoryMapSize, &descriptorSize);
     #endif
+
+    MemSetMemoryMapPtr(memoryMap, memoryMapSize, descriptorSize);
 
     // exit boot land
     UEFIBootExitBootServices(imageHandle, mapKey);

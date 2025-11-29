@@ -84,3 +84,23 @@ void GfxPlot(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 
     GfxPlotPixel(x, y, pixel);
 }
+
+void GfxFullScreenGradientToColor(uint8_t r, uint8_t g, uint8_t b)
+{
+    int width = GfxGetScreenWidth();
+    int height = GfxGetScreenHeight();
+
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            GfxPlot(
+                (width - x),  // light color -> dark color
+                y, 
+                x == 0 || r == 0 ? 0 : r * ((float) x / width), 
+                x == 0 || g == 0 ? 0 : g * ((float) x / width), 
+                x == 0 || b == 0 ? 0 : b * ((float) x / width)
+            );
+        }
+    }
+}

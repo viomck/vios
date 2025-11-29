@@ -63,7 +63,7 @@ cd ../kernel
 # -----------------------------------------------------------------------------
 
 # ------------------------- BUILD THE EFI APPLICATION -------------------------
-CCFLAGS="-I. -I../gnu-efi/inc -fpic -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args"
+CCFLAGS="-I. -I../gnu-efi/inc -fpic -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args -fno-builtin"
 LDFLAGS="-shared -Bsymbolic -L../gnu-efi/x86_64/lib -L../gnu-efi/x86_64/gnuefi -T../gnu-efi/gnuefi/elf_x86_64_efi.lds ../gnu-efi/x86_64/gnuefi/crt0-efi-x86_64.o"
 OBJCOPYFLAGS="-j .text -j .sdata -j .data -j .rodata -j .dynamic -j .dynsym  -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target efi-app-x86_64 --subsystem=10"
 
@@ -101,7 +101,9 @@ build gen/genfont
 build font
 build gfx
 build main
+build mem
 build panic
+build std
 
 echo "linking $linker_files..." ; ld $LDFLAGS $linker_files -o main.so -lgnuefi -lefi
 echo "extracting EFI executable..." ; objcopy $OBJCOPYFLAGS main.so main.efi
@@ -131,6 +133,12 @@ echo "copying part.img into uefi.img..." ; dd if=part.img of=uefi.img bs=512 cou
 # --------------------------- RUN THE IMAGE IN QEMU ---------------------------
 KERNELDIR="$PWD"
 
+monitorarg="-monitor stdio"
+
+if has_flag "memmap"; then
+    monitorarg="-serial stdio"
+fi
+
 mkdir -p "$QEMU_RUNDIR/ovmf"
 cp ../ovmf/* "$QEMU_RUNDIR/ovmf"
 cp uefi.img "$QEMU_RUNDIR"
@@ -140,7 +148,7 @@ echo "running qemu..." ; "$QEMU" \
 	-drive if=pflash,unit=0,format=raw,readonly=on,file=ovmf/codex86.fd \
 	-drive if=pflash,unit=1,format=raw,file=ovmf/varsx86.fd \
 	-drive file=uefi.img,format=raw,if=ide \
-    -serial stdio
+    $monitorarg
 cd $KERNELDIR
 
 cleanup

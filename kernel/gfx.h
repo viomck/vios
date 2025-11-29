@@ -11,6 +11,7 @@ void GfxSetScreenWidthAndHeight(uint16_t width, uint16_t height);
 // plot methods
 void GfxPlot(int x, int y, uint8_t r, uint8_t g, uint8_t b);
 void GfxPlotPixel(int x, int y, uint32_t pixel);
+void GfxFullScreenGradientToColor(uint8_t r, uint8_t g, uint8_t b);
 
 uint16_t GfxGetScreenWidth();
 uint16_t GfxGetScreenHeight();
